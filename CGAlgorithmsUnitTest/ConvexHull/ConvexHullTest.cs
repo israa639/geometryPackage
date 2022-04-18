@@ -27624,7 +27624,7 @@ namespace CGAlgorithmsUnitTest
             inputPoints.Add(new Point(0, -100));
             inputPoints.Add(new Point(50, 20));
             inputPoints.Add(new Point(90, -90));
-           // inputPoints.Add(new Point(-100, -100));
+            inputPoints.Add(new Point(-100, -100));
 
             desiredPoints.Add(new Point(100, 100));
             desiredPoints.Add(new Point(100, -100));

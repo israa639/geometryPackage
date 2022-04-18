@@ -44,6 +44,13 @@ namespace CGUtilities
             else if (result > 0) return Enums.TurnType.Left;
             else return Enums.TurnType.Colinear;
         }
+        public static double dotProduct(Point vector1, Point vector2)
+        {
+            double crossProd = ((vector1.X * vector2.X) + (vector1.Y * vector2.Y));
+            crossProd /=( Math.Sqrt((vector1.X * vector1.X)+ (vector1.Y * vector1.Y)) * Math.Sqrt((vector2.X * vector2.X) + (vector2.Y * vector2.Y)));
+            return Math.Acos(crossProd);
+        }
+
         public static double CrossProduct(Point a, Point b)
         {
             return a.X * b.Y - a.Y * b.X;
