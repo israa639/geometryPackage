@@ -12,22 +12,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
         
         public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
-
-            Dictionary<KeyValuePair<double, double>,int> visted = new Dictionary<KeyValuePair<double, double>, int>();
-            for (int i = 0; i < points.Count; i++)
-            {
-                var pointi = new KeyValuePair<double, double>(points[i].X, points[i].Y);
-                if (visted.ContainsKey(pointi) == false)
-                {
-                    visted[new KeyValuePair<double, double>(points[i].X, points[i].Y)]=i;
-
-                }
-                else
-                {
-                    points.RemoveAt(i);
-                }
-            } 
-
+            HelperMethods.filterPoints(points);
             bool breakLoop = false;
           
             for (int i = 0; i < points.Count(); i++)

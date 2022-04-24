@@ -93,5 +93,23 @@ namespace CGUtilities
         {
             return l.Start.Vector(l.End);
         }
+        public static void filterPoints(List<Point>points)
+        {
+            Dictionary<KeyValuePair<double, double>, int> visted = new Dictionary<KeyValuePair<double, double>, int>();
+            for (int i = 0; i < points.Count; i++)
+            {
+                var pointi = new KeyValuePair<double, double>(points[i].X, points[i].Y);
+                if (visted.ContainsKey(pointi) == false)
+                {
+                    visted[new KeyValuePair<double, double>(points[i].X, points[i].Y)] = i;
+
+                }
+                else
+                {
+                    points.RemoveAt(i);
+                }
+            }
+
+        }
     }
 }
