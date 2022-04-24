@@ -27,5 +27,11 @@ namespace CGUtilities
             Lines,
             Polygons
         }
+        public enum EventType
+        {
+            Start,
+            End,
+            Intersection
+        }
     }
 }
