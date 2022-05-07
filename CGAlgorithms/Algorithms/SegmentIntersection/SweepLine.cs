@@ -29,12 +29,69 @@ namespace CGAlgorithms.Algorithms.SegmentIntersection
         }
 
     }
+    public class sweep
+    {
+        public double y;
+        public int index;
+        public sweep(double Y,int ind)
+        {
+            this.y = Y;
+            this.index = ind;
+        }
+        public sweep()
+        {
+        }
+
+    }
+    public class SortLines: IComparer<sweep>
+    {
+        public int Compare(sweep a, sweep b)
+        {
+            if (a.y > b.y)
+                return 1;
+            else if (a.y < b.y)
+                return -1;
+            else return 0;
+        }
+    }
+    public class queues
+    {
+        public double y;
+        public int index;
+        public queues(double Y, int ind)
+        {
+            this.y = Y;
+            this.index = ind;
+        }
+        public queues()
+        {
+        }
+
+    }
+    public class queuesSort : IComparer<Event>
+    {
+        public int Compare(Event a, Event b)
+        {
+            if (a.p.X > b.p.X)
+                return 1;
+            else if (a.p.X < b.p.X)
+                return -1;
+            else
+            {
+                if (a.p.Y > b.p.Y)
+                    return 1;
+                else if (a.p.Y < b.p.Y)
+                    return -1;
+                else return 0;
+            };
+        }
+    }
 
 
     public class SweepLine : Algorithm
     {
-        public SortedDictionary<double, int> SweepLines = new SortedDictionary<double, int>(); //sweepline(Y-cooridante(order by y), index of segment in points list)
-        public SortedDictionary<double, Event> eventQueue = new SortedDictionary<double, Event>(); //EventQueue(X-coordinate of point,Event description)
+        public SortedSet<sweep> sweeps = new SortedSet<sweep>(new SortLines());
+        public SortedSet<Event> eventqueue = new SortedSet<Event>(new queuesSort());
         public double currKey; //current event processed
         public List<Point> intersections = new List<Point>(); //list of output intersection points
         public List<Event> output = new List<Event>(); //list of output intersection events(to show intersecting segments)
@@ -71,41 +128,24 @@ namespace CGAlgorithms.Algorithms.SegmentIntersection
 
 
             //initializaing event queue
+
             for (int i = 0; i < lines.Count(); i++)
             {   //start event
-                if (!eventQueue.ContainsKey(lines[i].Start.X)) 
-                    eventQueue.Add(lines[i].Start.X, new Event(lines[i].Start, Enums.EventType.Start, i));
-                else //handle 2 points with same X
-                {
-                    Event temp;
-                    eventQueue.TryGetValue(lines[i].Start.X, out temp);
-                    if (temp.p.Y < lines[i].Start.Y)
-                        eventQueue.Add(lines[i].Start.X + 0.00000001, new Event(lines[i].Start, Enums.EventType.Start, i));
-                    else
-                        eventQueue.Add(lines[i].Start.X - 0.00000001, new Event(lines[i].Start, Enums.EventType.Start, i));
+                eventqueue.Add(new Event(lines[i].Start, Enums.EventType.Start, i));
 
-                }
+                
                 //end event
-                if (!eventQueue.ContainsKey(lines[i].End.X))
-                    eventQueue.Add(lines[i].End.X, new Event(lines[i].End, Enums.EventType.End, i));
-                else  //handle 2 points with same X
-                {
-                    Event temp;
-                    eventQueue.TryGetValue(lines[i].End.X, out temp);
-                    if (temp.p.Y< lines[i].End.Y)
-                        eventQueue.Add(lines[i].End.X + 0.00000001, new Event(lines[i].End, Enums.EventType.End, i));
-                    else
-                        eventQueue.Add(lines[i].End.X - 0.00000001, new Event(lines[i].End, Enums.EventType.End, i));
+                eventqueue.Add(new Event(lines[i].End, Enums.EventType.End, i));
 
-                }
+                
             }
 
-            while (eventQueue.Count() > 0) //while queue not empty
+            while (eventqueue.Count() > 0) //while queue not empty
             {
-                Event curr = eventQueue.ElementAt(0).Value;
-                double keys = eventQueue.ElementAt(0).Key;
+                Event curr = eventqueue.ElementAt(0);
+                double keys = eventqueue.ElementAt(0).p.X;
                 currKey = keys;
-                eventQueue.Remove(keys);//remove event
+                eventqueue.Remove(curr);//remove event
                 HandleEvent(curr, lines);//handle event
 
             }
@@ -117,22 +157,22 @@ namespace CGAlgorithms.Algorithms.SegmentIntersection
             if (eve.enums == Enums.EventType.Start)//if start event
             {
 
-                SweepLines.Add(eve.p.Y, eve.SegmentIndex);
+                sweeps.Add(new sweep(eve.p.Y, eve.SegmentIndex));
                 int next;
                 int prev;
 
-
-                foreach (var item in SweepLines.Select((value, index) => new { index, value }))
+                
+                foreach (var item in sweeps.Select((value, index) => new { index, value }))
                 {
-                    if (item.value.Key == eve.p.Y)
+                    if (item.value.y == eve.p.Y)
                     {
 
                         next = item.index + 1;
-                        if(next<SweepLines.Count())//check for intersection of inserted segment with next segment in sweepline
-                            CheckIntersect(lines[SweepLines.ElementAt(next).Value], lines[eve.SegmentIndex], SweepLines.ElementAt(next).Value, eve.SegmentIndex);
+                        if(next<sweeps.Count())//check for intersection of inserted segment with next segment in sweepline
+                            CheckIntersect(lines[sweeps.ElementAt(next).index], lines[eve.SegmentIndex], sweeps.ElementAt(next).index, eve.SegmentIndex);
                         prev = item.index - 1;
                         if(prev >= 0)
-                            CheckIntersect(lines[eve.SegmentIndex], lines[SweepLines.ElementAt(prev).Value], eve.SegmentIndex,SweepLines.ElementAt(prev).Value);//check prev
+                            CheckIntersect(lines[eve.SegmentIndex], lines[sweeps.ElementAt(prev).index], eve.SegmentIndex,sweeps.ElementAt(prev).index);//check prev
                         break;
                     }
 
@@ -145,18 +185,18 @@ namespace CGAlgorithms.Algorithms.SegmentIntersection
                 int next;
                 int prev;
        
-                foreach (var item in SweepLines.Select((value, index) => new { index, value }))
+                foreach (var item in sweeps.Select((value, index) => new { index, value }))
                 {
-                    if (item.value.Value == eve.SegmentIndex)
+                    if (item.value.index == eve.SegmentIndex)
                     {
                         
                         next = item.index+1;
                         prev = item.index - 1;
-                        if (SweepLines.Count() < next && prev >=0)
+                        if (sweeps.Count() < next && prev >=0)
                         {
-                            CheckIntersect(lines[SweepLines.ElementAt(next).Value], lines[SweepLines.ElementAt(prev).Value], SweepLines.ElementAt(next).Value, SweepLines.ElementAt(prev).Value);//check prev with next
+                            CheckIntersect(lines[sweeps.ElementAt(next).index], lines[sweeps.ElementAt(prev).index], sweeps.ElementAt(next).index, sweeps.ElementAt(prev).index);//check prev with next
                         }
-                        SweepLines.Remove( SweepLines.ElementAt(item.index).Key);//remove line
+                        sweeps.Remove( sweeps.ElementAt(item.index));//remove line
                         break;
                     }
 
@@ -171,29 +211,29 @@ namespace CGAlgorithms.Algorithms.SegmentIntersection
             {
                 int seg1 = eve.SegmentIndex;//higher seg
                 int seg2 = eve.Segment2Index;
-                double seg1y = SweepLines.First(w => w.Value == seg1).Key;
-                double seg2y = SweepLines.First(w => w.Value == seg2).Key;
+                double seg1y = sweeps.First(w => w.index == seg1).y;
+                double seg2y = sweeps.First(w => w.index == seg2).y;
                 int sweeplineIndex;
                 int next = 0;
                 int prev = 0 ;
-                KeyValuePair<double, int> nexts = new KeyValuePair<double, int>();
-                KeyValuePair<double, int> below = new KeyValuePair<double, int>();
-                foreach (var item in SweepLines.Select((value, index) => new {index, value }))
+                sweep nexts = new sweep();
+                sweep below = new sweep();
+                foreach (var item in sweeps.Select((value, index) => new {index, value }))
                 {
-                    if (item.value.Key == seg2y)
+                    if (item.value.y == seg2y)
                     {
 
                         prev = item.index - 1; //prev seg
                         if (prev>=0)
                         {
-                            below = SweepLines.ElementAt(prev);
+                            below = sweeps.ElementAt(prev);
                         }
                     }
-                    if (item.value.Key >seg1y)
+                    if (item.value.y >seg1y)
                     {
 
                         next = item.index;
-                        if (next < SweepLines.Count())
+                        if (next < sweeps.Count())
                             nexts = item.value;
                         
 
@@ -202,22 +242,22 @@ namespace CGAlgorithms.Algorithms.SegmentIntersection
                     }
 
                 }
-                CheckIntersect(lines[nexts.Value], lines[eve.Segment2Index], nexts.Value, eve.Segment2Index);//checks1 with prev
-                CheckIntersect(lines[eve.SegmentIndex], lines[below.Value], eve.SegmentIndex,below.Value);//checkhigher y with above
+                CheckIntersect(lines[nexts.index], lines[eve.Segment2Index], nexts.index, eve.Segment2Index);//checks1 with prev
+                CheckIntersect(lines[eve.SegmentIndex], lines[below.index], eve.SegmentIndex,below.index);//checkhigher y with above
 
                 //swap lines
                 
-                KeyValuePair<double, int> temp = new KeyValuePair<double, int>();
-                KeyValuePair<double, int> temp2 = new KeyValuePair<double, int>();
-                if(next==0) temp = SweepLines.ElementAt(SweepLines.Count()-1);
+                sweep temp = new sweep();
+                sweep temp2 = new sweep();
+                if(next==0) temp = sweeps.ElementAt(sweeps.Count()-1);
                 else
-                  temp = SweepLines.ElementAt(next - 1); //higher
-                temp2 = SweepLines.ElementAt(prev + 1);//lower
+                  temp = sweeps.ElementAt(next - 1); //higher
+                temp2 = sweeps.ElementAt(prev + 1);//lower
                
-                SweepLines.Remove(temp.Key); //higher
-                SweepLines.Add(temp.Key, temp2.Value);
-                SweepLines.Remove(temp2.Key);
-                SweepLines.Add(temp2.Key, temp.Value);
+                sweeps.Remove(temp); //higher
+                sweeps.Add(new sweep(temp.y, temp2.index));
+                sweeps.Remove(temp2);
+                sweeps.Add(new sweep(temp2.y, temp.index));
 
 
 
@@ -236,9 +276,9 @@ namespace CGAlgorithms.Algorithms.SegmentIntersection
                 int intersects = get_line_intersection(s1.Start.X, s1.Start.Y, s1.End.X, s1.End.Y, s2.Start.X, s2.Start.Y, s2.End.X, s2.End.Y,ref x,ref y,ref inter);
                 if (intersects == 1)
                 {
-                    if ((!eventQueue.ContainsKey(inter.X)) && (inter.X > currKey))
+                    if ((!eventqueue.Contains(new Event(inter, Enums.EventType.Intersection, index1, index2))) && (inter.X > currKey))
                     {
-                        eventQueue.Add(inter.X, new Event(inter, Enums.EventType.Intersection, index1, index2));
+                        eventqueue.Add(new Event(inter, Enums.EventType.Intersection, index1, index2));
                         intersections.Add(inter);
                         output.Add(new Event(inter, Enums.EventType.Intersection, index1, index2));
                     }
