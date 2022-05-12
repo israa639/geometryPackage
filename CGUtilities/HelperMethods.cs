@@ -44,6 +44,13 @@ namespace CGUtilities
             else if (result > 0) return Enums.TurnType.Left;
             else return Enums.TurnType.Colinear;
         }
+        public static double dotProduct(Point vector1, Point vector2)
+        {
+            double crossProd = ((vector1.X * vector2.X) + (vector1.Y * vector2.Y));
+            crossProd /=( Math.Sqrt((vector1.X * vector1.X)+ (vector1.Y * vector1.Y)) * Math.Sqrt((vector2.X * vector2.X) + (vector2.Y * vector2.Y)));
+            return Math.Acos(crossProd);
+        }
+
         public static double CrossProduct(Point a, Point b)
         {
             return a.X * b.Y - a.Y * b.X;
@@ -85,6 +92,52 @@ namespace CGUtilities
         public static Point GetVector(Line l)
         {
             return l.Start.Vector(l.End);
+        }
+        public static void filterPoints(List<Point>points)
+        {
+            Dictionary<KeyValuePair<double, double>, int> visted = new Dictionary<KeyValuePair<double, double>, int>();
+            for (int i = 0; i < points.Count; i++)
+            {
+                var pointi = new KeyValuePair<double, double>(points[i].X, points[i].Y);
+                if (visted.ContainsKey(pointi) == false)
+                {
+                    visted[new KeyValuePair<double, double>(points[i].X, points[i].Y)] = i;
+
+                }
+                else
+                {
+                    points.RemoveAt(i);
+                }
+            }
+
+        }
+        public static  int findMaxPoint(List<Point> points)
+        {
+            int maxInd = 0;
+            double max_X_coord = points[0].X;
+            for (int i = 1; i < points.Count; i++)
+            {
+                if (points[i].X > max_X_coord)
+                {
+                    max_X_coord = points[i].X;
+                    maxInd = i;
+                }
+            }
+            return maxInd;
+        }
+        public static  int findMinpoint(List<Point> points)
+        {
+            int minInd = 0;
+            double min_X_coord = points[0].X;
+            for (int i = 1; i < points.Count; i++)
+            {
+                if (points[i].X < min_X_coord)
+                {
+                    min_X_coord = points[i].X;
+                    minInd = i;
+                }
+            }
+            return minInd;
         }
     }
 }

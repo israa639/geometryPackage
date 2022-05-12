@@ -9,25 +9,10 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 {
     public class ExtremePoints : Algorithm
     {
-        public double max(double p1,double p2)
-        {
-            return p1 > p2 ? p1 : p2;
-        }
-        public double min(double p1, double p2)
-        {
-            return p1 < p2 ? p1 : p2;
-        }
-        //public enum PointInPolygon
-        //{
-        //    Inside,
-        //    Outside,
-        //    OnEdge
-        //}
+        
         public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
-         
-            
-
+            HelperMethods.filterPoints(points);
             bool breakLoop = false;
           
             for (int i = 0; i < points.Count(); i++)
