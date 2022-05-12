@@ -111,5 +111,33 @@ namespace CGUtilities
             }
 
         }
+        public static  int findMaxPoint(List<Point> points)
+        {
+            int maxInd = 0;
+            double max_X_coord = points[0].X;
+            for (int i = 1; i < points.Count; i++)
+            {
+                if (points[i].X > max_X_coord)
+                {
+                    max_X_coord = points[i].X;
+                    maxInd = i;
+                }
+            }
+            return maxInd;
+        }
+        public static  int findMinpoint(List<Point> points)
+        {
+            int minInd = 0;
+            double min_X_coord = points[0].X;
+            for (int i = 1; i < points.Count; i++)
+            {
+                if (points[i].X < min_X_coord)
+                {
+                    min_X_coord = points[i].X;
+                    minInd = i;
+                }
+            }
+            return minInd;
+        }
     }
 }
