@@ -37,85 +37,105 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
                 };
             }
         }
-        public Boolean Check_Y_Monotone(List<Points> points, Point minY)
+        public List<Point> Trun_AntiClock(List<Point> points)
         {
-            Boolean y_mono = true;
-            for (int i = 1; i < points.Count()-1; i++)
+            points.Reverse();
+
+            return points;
+        }
+        public List<Point> Check_antiClock(List<Line> lines)
+        {
+            List<Point> poly = new List<Point>();
+            poly.Add((Point)lines[0].Start.Clone());
+            Point minY =(Point)lines[0].Start.Clone();
+            Point PrevMin = (Point)lines[lines.Count() - 1].Start.Clone(); ;//to check clockwise later
+            Point NextMin = (Point)lines[1].Start.Clone(); ;
+            for (int i = 1; i < lines.Count(); i++) // make sorted set of start points
             {
-                if ((points[i - 1].point.Y > points[i].point.Y) && (points[i + 1].point.Y > points[i].point.Y)) //merge vertex 
+                poly.Add((Point)lines[i].Start.Clone());
+
+          
+                if (lines[i].Start.Y < minY.Y)
                 {
-                    y_mono = false;
-                    break;
-                }
-                else if ((points[i - 1].point.Y < points[i].point.Y) && (points[i + 1].point.Y < points[i].point.Y) && !points[i].point.Equals(minY)) //split vertex
-                {
-                    y_mono = false;
-                    break;
+                    PrevMin = (Point)lines[i - 1].Start.Clone();
+                    minY = (Point)lines[i].Start.Clone();
+                    if (i < lines.Count() - 1)
+                        NextMin = (Point)lines[i + 1].Start.Clone();
+                    else
+                        NextMin = (Point)lines[0].Start.Clone();
+
                 }
 
             }
+            //check if polygon is in anticlock wise
 
+            List<Point> temp = new List<Point>();
+            if (HelperMethods.CheckTurn(new Line(PrevMin, minY), NextMin) == Enums.TurnType.Right)
+            {
+                Console.WriteLine("POLY IS IN CLOCKWISE : RESOLVE");
+                temp = Trun_AntiClock(poly);
 
-            return y_mono;
+            }
+            else
+                temp = poly;
+
+            return temp ;
+
         }
+
         
-            
+
         public override void Run(List<Point> points,List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
             SortedSet<Points> point = new SortedSet<Points>(new SortPoints());
             Stack<Points> curr = new Stack<Points>();
             List<Line> diagonals = new List<Line>();
 
+            List<Point> newPoints = Check_antiClock(lines);//has new set of start points
+           
 
-            Point minY = new Point(0,0);
             int count = 0;
-            point.Add(new Points((Point)lines[0].Start.Clone(), 0)); //left chain
-            for (int i = 1; i < lines.Count(); i++) // make sorted set of start points
+            if(newPoints[1].Y< newPoints[0].Y)
+                point.Add(new Points((Point)newPoints[0].Clone(), 0)); //left chain
+            else if (newPoints[newPoints.Count() - 1].Y < newPoints[0].Y)
+                point.Add(new Points((Point)newPoints[0].Clone(), 1)); //right chain
+            else
+                point.Add(new Points((Point)newPoints[0].Clone(), 2)); //right chain
+
+
+            for (int i = 1; i < newPoints.Count(); i++) // make sorted set of start points
             {
-                if (lines[i - 1].Start.Y > lines[i].Start.Y)
+                if (newPoints[i - 1].Y > newPoints[i].Y)
                 {
                     Point next;
-                    if (i < lines.Count() - 1)
-                        next = lines[i + 1].Start;
+                    if (i < newPoints.Count() - 1)
+                        next = newPoints[i + 1];
                     else 
                         next = (Point)point.ElementAt(0).point.Clone();
-                    if (next.Y > lines[i].Start.Y)//point with min y
+                    if (next.Y > newPoints[i].Y)//point with min y
                     {
-                        
-                        minY = (Point)lines[i].Start.Clone();
+
                         count++;
-                        point.Add(new Points((Point)lines[i].Start.Clone(), 2));
+                        point.Add(new Points((Point)newPoints[i].Clone(), 2));
                         // will be true if merge vertex exist
                         if(count>1)
                         {
                             Console.WriteLine("POLY IS NOT Y_MONOTONE : TERMINATE");
                             return;
                         }
-                        //check if polygon is in anticlock wise
-                        if (count<2 && HelperMethods.CheckTurn(new Line((Point)lines[i - 1].Start.Clone(), (Point)lines[i].Start.Clone()), (Point)next.Clone()) == Enums.TurnType.Right)
-                        {
-                            Console.WriteLine("POLY IS IN CLOCK WISE : TERMINATE");
-                            return;
-                        }
+                        
                         
                     }
                     else
-                        point.Add(new Points((Point)lines[i].Start.Clone(), 0)); //left chain
+                        point.Add(new Points((Point)newPoints[i].Clone(), 0)); //left chain
                 }
                 else
-                    point.Add(new Points((Point)lines[i].Start.Clone(), 1));  //right chain
+                    point.Add(new Points((Point)newPoints[i].Clone(), 1));  //right chain
 
             }
 
-            if (count>1||Check_Y_Monotone(point.ToList(), minY) == false) //not y_montone
-            {
-                Console.WriteLine("POLY IS NOT Y_MONOTONE : TERMINATE");
-                return;
-            }
-            else
-                Console.WriteLine("Y_MONTONE");
 
-
+ 
             curr.Push(point.ElementAt(0));
             curr.Push(point.ElementAt(1));
             int j = 2;
