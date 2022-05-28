@@ -63,6 +63,10 @@ namespace CGUtilities
             var w = a.Vector(b).Normalize();
             return q.Equals(w);
         }
+        public static double distanceBetween2Points(Point a, Point b)
+        {
+            return Math.Sqrt(Math.Pow((a.X-b.X),2)+ Math.Pow((a.Y - b.Y), 2));
+        }
         public static bool PointOnSegment(Point p, Point a, Point b)
         {
             if (a.Equals(b))
@@ -139,7 +143,7 @@ namespace CGUtilities
             }
             return minInd;
         }
-        public static  Point Intersection_between_2Lines(Line l1,Line l2)
+        public static  double Intersection_between_2Lines(Line l1,Line l2,string maxORmin)
         {
             double a1 = l1.End.Y - l1.Start.Y;
             double b1 = l1.Start.X - l1.End.X;
@@ -152,19 +156,24 @@ namespace CGUtilities
             double c2 = a2 * l2.Start.X + b2 * l2.Start.Y;
            
 
-            double determinant = a1 * b2 - a2 * b1;
+            double determinant =Math.Abs( a1 * b2 - a2 * b1);
 
             if (determinant == 0)
             {
-                // The lines are parallel. This is simplified
-                // by returning a pair of FLT_MAX
-                return new Point(-1,-1);
+                if (maxORmin == "max")
+                {
+                    return l1.Start.Y > l1.End.Y ? l1.Start.Y : l1.End.Y;
+
+                }
+                else
+                { return l1.Start.Y < l1.End.Y ? l1.Start.Y : l1.End.Y; }
+
             }
             else
             {
-                double x = (b2 * c1 - b1 * c2) / determinant;
-                double y = (a1 * c2 - a2 * c1) / determinant;
-                return new Point(x, y);
+                //double x = Math.Abs((b2 * c1 - b1 * c2) / determinant);
+                double y = Math.Abs((a1 * c2 - a2 * c1) / determinant);
+                return  y;
             }
         }
     }
