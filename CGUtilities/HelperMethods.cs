@@ -8,6 +8,45 @@ namespace CGUtilities
 {
     public class HelperMethods
     {
+
+
+
+
+
+
+
+
+
+
+	public static double area(double x1, double y1, double x2,
+                    double y2, double x3, double y3)
+	{
+		return Math.Abs((x1 * (y2 - y3) +
+						x2 * (y3 - y1) +
+						x3 * (y1 - y2)) / 2.0);
+	}
+
+
+	public static bool isInside(double x1, double y1, double x2,
+                    double y2, double x3, double y3,
+                        double x, double  y)
+	{
+		
+		double A = area(x1, y1, x2, y2, x3, y3);
+
+	
+		double A1 = area(x, y, x2, y2, x3, y3);
+
+		double A2 = area(x1, y1, x, y, x3, y3);
+
+	
+		double A3 = area(x1, y1, x2, y2, x, y);
+
+		return (A == A1 + A2 + A3);
+	}
+
+
+
         public static Enums.PointInPolygon PointInTriangle(Point p, Point a, Point b, Point c)
         {
             if (a.Equals(b) && b.Equals(c))
@@ -62,6 +101,10 @@ namespace CGUtilities
             var q = a.Vector(p).Normalize();
             var w = a.Vector(b).Normalize();
             return q.Equals(w);
+        }
+        public static double distanceBetween2Points(Point a, Point b)
+        {
+            return Math.Sqrt(Math.Pow((a.X-b.X),2)+ Math.Pow((a.Y - b.Y), 2));
         }
         public static bool PointOnSegment(Point p, Point a, Point b)
         {
@@ -138,6 +181,39 @@ namespace CGUtilities
                 }
             }
             return minInd;
+        }
+        public static  double Intersection_between_2Lines(Line l1,Line l2,string maxORmin)
+        {
+            double a1 = l1.End.Y - l1.Start.Y;
+            double b1 = l1.Start.X - l1.End.X;
+            double c1 = a1 * (l1.Start.X) + b1 * l1.Start.Y;
+
+
+            // Line CD represented as a2x + b2y = c2
+            double a2 = l2.End.Y - l2.Start.Y;
+            double b2 = l2.Start.X - l2.End.X;
+            double c2 = a2 * l2.Start.X + b2 * l2.Start.Y;
+           
+
+            double determinant =Math.Abs( a1 * b2 - a2 * b1);
+
+            if (determinant == 0)
+            {
+                if (maxORmin == "max")
+                {
+                    return l1.Start.Y > l1.End.Y ? l1.Start.Y : l1.End.Y;
+
+                }
+                else
+                { return l1.Start.Y < l1.End.Y ? l1.Start.Y : l1.End.Y; }
+
+            }
+            else
+            {
+                //double x = Math.Abs((b2 * c1 - b1 * c2) / determinant);
+                double y = Math.Abs((a1 * c2 - a2 * c1) / determinant);
+                return  y;
+            }
         }
     }
 }
