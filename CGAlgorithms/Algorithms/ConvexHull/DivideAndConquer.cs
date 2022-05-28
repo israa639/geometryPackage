@@ -27,7 +27,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             double max_X_coord = left_hull[0].X;
             for (int i = 1; i < left_hull.Count; i++)
             {
-                if(left_hull[i].X>max_X_coord)
+                if(left_hull[i].X>=max_X_coord)
                 {
                     max_X_coord = left_hull[i].X;
                     maxInd = i;
@@ -61,9 +61,10 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 brk = true;
                 while (true)
                 {
-                    Line l = new Line(left_hull[ULP], left_hull[(ULP + 1)%left_hull.Count]);
+                    
+                    Line l = new Line( left_hull[(ULP + 1)%left_hull.Count], left_hull[ULP]);
 
-                    if (HelperMethods.CheckTurn(l, right_hull[URP]) == Enums.TurnType.Right)
+                    if (HelperMethods.CheckTurn(l, right_hull[URP]) == Enums.TurnType.Left)
                     {
                         ULP = (ULP + 1) % left_hull.Count;
                         continue;
@@ -74,9 +75,9 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 while (true)
                 {
 
-                    Line l = new Line(right_hull[URP], right_hull[(right_hull.Count+URP - 1)% right_hull.Count]);
+                    Line l = new Line(right_hull[(right_hull.Count + URP - 1) % right_hull.Count], right_hull[URP]);
 
-                    if (HelperMethods.CheckTurn(l, left_hull[ULP]) == Enums.TurnType.Left)
+                    if (HelperMethods.CheckTurn(l, left_hull[ULP]) == Enums.TurnType.Right)
                     {
                         URP = (right_hull.Count + URP - 1) % right_hull.Count;
                         brk = false;
@@ -88,19 +89,20 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             int upperLP = ULP, upperRP = URP;
              ULP = MaxLH;
              URP = MinRH;
+            brk = false;
             while (!brk)
             {
                 brk = true;
-                
+               
 
                 while (true)
                 {
 
-                    Line l = new Line(right_hull[URP], right_hull[URP + 1]);
+                    Line l = new Line(right_hull[URP],right_hull[(URP + 1)%right_hull.Count]);
 
                     if (HelperMethods.CheckTurn(l, left_hull[ULP]) == Enums.TurnType.Right)
                     {
-                        URP =URP+ 1%right_hull.Count;
+                        URP =(URP+ 1)%right_hull.Count;
                         
                         continue;
                     }
@@ -118,16 +120,25 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                     }
                     break;
                 }
+
             }
+            
             int downLP = ULP, downRP = URP;
             List<Point> points = new List<Point>();
-            for(int i=ULP;i<=downLP;i++)
+            int start = upperLP;
+            points.Add(left_hull[start]);
+           
+            while (start!=downLP)
             {
-                points.Add(left_hull[i]);
+                start = (start + 1) % left_hull.Count;
+                points.Add(left_hull[start]);
             }
-            for (int i = downRP; i <= URP; i++)
+            start = downRP;
+            points.Add(right_hull[start]);
+            while (start != upperRP)
             {
-                points.Add(right_hull[i]);
+                start = (start + 1) % right_hull.Count;
+                points.Add(right_hull[start]);
             }
             return points;
         }
@@ -136,12 +147,13 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 
             if (points.Count < 6)
             {
-               
-                ExtremePoints ch = new ExtremePoints();
+
+                JarvisMarch ch = new JarvisMarch();
+            
                 ch.Run(points, new List<Line>(), new List<Polygon>(), ref outPoints, ref outLines, ref outPolygons);
                 return outPoints;
             }
-            int mid = (points.Count / 2) - 1;
+            int mid = (points.Count / 2) -1;
 
             List<Point> lch = getPoints(points, 0, mid);
             List<Point> rch = getPoints(points, mid + 1, points.Count - 1);

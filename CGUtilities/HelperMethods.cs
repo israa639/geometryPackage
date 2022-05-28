@@ -139,5 +139,33 @@ namespace CGUtilities
             }
             return minInd;
         }
+        public static  Point Intersection_between_2Lines(Line l1,Line l2)
+        {
+            double a1 = l1.End.Y - l1.Start.Y;
+            double b1 = l1.Start.X - l1.End.X;
+            double c1 = a1 * (l1.Start.X) + b1 * l1.Start.Y;
+
+
+            // Line CD represented as a2x + b2y = c2
+            double a2 = l2.End.Y - l2.Start.Y;
+            double b2 = l2.Start.X - l2.End.X;
+            double c2 = a2 * l2.Start.X + b2 * l2.Start.Y;
+           
+
+            double determinant = a1 * b2 - a2 * b1;
+
+            if (determinant == 0)
+            {
+                // The lines are parallel. This is simplified
+                // by returning a pair of FLT_MAX
+                return new Point(-1,-1);
+            }
+            else
+            {
+                double x = (b2 * c1 - b1 * c2) / determinant;
+                double y = (a1 * c2 - a2 * c1) / determinant;
+                return new Point(x, y);
+            }
+        }
     }
 }
