@@ -26,7 +26,7 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             return c_index;
 
         }
-        public int get_min_point(List<CGUtilities.Line> lines)
+        public int get_max_point(List<CGUtilities.Line> lines)
         {
 
             CGUtilities.Point min = lines[0].Start;
@@ -49,7 +49,7 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
         {
             if (lines.Count > 3)
             {
-               int c_point_index = get_min_point(lines);
+               int c_point_index = get_max_point(lines);
                 //int c_point_index = get_convex_point(lines);
                 //if (c_point_index==-1)
                 //{
@@ -64,8 +64,13 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
                 int l = (c_next + 1) % lines.Count;
                 while (l != c_prev)
                 {
-                    var point_location = CGUtilities.HelperMethods.PointInTriangle(lines[c_point_index].Start, lines[c_prev].Start, lines[c_next].Start, lines[l].Start);
-                    if (point_location == Enums.PointInPolygon.Inside )
+                   // bool isInside = CGUtilities.HelperMethods.isInside(lines[c_point_index].Start.X, lines[c_point_index].Start.Y, lines[c_next].Start.X, lines[c_next].Start.Y, lines[c_prev].Start.X, lines[c_prev].Start.Y, lines[l].Start.X, lines[l].Start.Y);
+
+                   var point_location = CGUtilities.HelperMethods.PointInTriangle(lines[l].Start,lines[c_point_index].Start, lines[c_point_index].End, lines[c_prev].Start);
+                  
+                    
+                    
+                    if (point_location==Enums.PointInPolygon.Inside)
                     {
                         if(x> CGUtilities.HelperMethods.distanceBetween2Points(lines[c_point_index].Start, lines[l].Start))
                         {
@@ -100,7 +105,7 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
                 }
                 else
                 {
-                    outLines.Add(new Line(lines[c_point_index].Start, lines[maxPointIndex].End));
+                    outLines.Add(new Line(lines[c_point_index].Start, lines[maxPointIndex].Start));
                     l1.Add((new Line(lines[c_point_index].Start, lines[maxPointIndex].Start)));
                     l1.Add(lines[c_prev]);
                     l1.Add(lines[(lines.Count + c_prev - 1) % lines.Count]);
