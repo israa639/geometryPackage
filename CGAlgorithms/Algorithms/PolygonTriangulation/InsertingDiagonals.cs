@@ -106,18 +106,25 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
                 else
                 {
                     outLines.Add(new Line(lines[c_point_index].Start, lines[maxPointIndex].Start));
-                    l1.Add((new Line(lines[c_point_index].Start, lines[maxPointIndex].Start)));
-                    l1.Add(lines[c_prev]);
-                    l1.Add(lines[(lines.Count + c_prev - 1) % lines.Count]);
+                    l1.Add(new Line(lines[c_point_index].Start, lines[maxPointIndex].Start));
                     l2.Add(new Line(lines[c_point_index].Start, lines[maxPointIndex].Start));
+
                     l = c_point_index;
-                    while (l !=((lines.Count + c_prev - 1) % lines.Count))
+                    while(l!=maxPointIndex)
+                    {
+                        l1.Add(lines[l]);
+
+                       l = (l + 1) % lines.Count;
+                    }
+                    
+                    while (l != c_point_index)                     
                     {
                         l2.Add(lines[l]);
-
-
                         l = (l + 1) % lines.Count;
                     }
+
+
+
 
                 }
 
