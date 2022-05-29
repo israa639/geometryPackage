@@ -63,13 +63,30 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             }
             return max_Y_coord;
         }
+        public double findMinY(List<Point> points)
+        {
+            int minInd = 0;
+            double min_Y_coord = points[0].Y;
+            for (int i = 1; i < points.Count; i++)
+            {
+                if (points[i].Y <= min_Y_coord)
+                {
+                    min_Y_coord = points[i].Y;
+                    minInd = i;
+                }
+            }
+            return min_Y_coord;
+        }
         public List<Point> mergeHulls(List<Point> left_hull, List<Point> right_hull, double minY, double maxY,Point mid)
         {
-            Line vertical_line = new Line(new Point(mid.X,maxY+10), new Point(mid.X, minY));
+            
 
-
+            List<Point> points = new List<Point>();
             int MaxLH = findMaxInLeftHull(left_hull);
             int MinRH = findMinInRighttHull(right_hull);
+            double mid_point = (left_hull[MaxLH].X + right_hull[MinRH].X) / 2;
+
+            Line vertical_line = new Line(new Point(mid_point, maxY + 10), new Point(mid_point, minY - 10));
             int ULP = MaxLH;
             int URP = MinRH;
             bool brk = false;
@@ -114,7 +131,14 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             int upperLP = ULP, upperRP = URP;
              ULP = MaxLH;
              URP = MinRH;
-            double min_intersection_point =max_intersection_point;
+
+            if(left_hull[ULP].Y==minY)
+            {
+                points.Add(left_hull[ULP]);
+
+
+            }
+            double min_intersection_point = HelperMethods.Intersection_between_2Lines(new Line(left_hull[ULP], right_hull[URP]), vertical_line, "max");
             brk = false;
             while (!brk)
             {
@@ -156,7 +180,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             }
             
             int downLP = ULP, downRP = URP;
-            List<Point> points = new List<Point>();
+           
             int start = upperLP;
             points.Add(left_hull[start]);
            
@@ -185,7 +209,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 ch.Run(points, new List<Line>(), new List<Polygon>(), ref outPoints, ref outLines, ref outPolygons);
                 return outPoints;
             }
-            int mid = (points.Count / 2) -1;
+            int mid = (points.Count / 2) ;
 
             List<Point> lch = getPoints(points, 0, mid);
             List<Point> rch = getPoints(points, mid + 1, points.Count - 1);
@@ -199,11 +223,11 @@ namespace CGAlgorithms.Algorithms.ConvexHull
         }
         public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
-            double minY = 0;
+            double minY = findMinY(points);
             double maxY = findMaXY(points);
            
             HelperMethods.filterPoints(points);
-            List<Point> sortedList = points.OrderBy(x => x.X).ToList();//.ThenBy(y => y.Y).ToList();
+            List<Point> sortedList = points.OrderBy(x => x.X).ToList();
             outPoints = divide(sortedList, ref outPoints, ref outLines, ref outPolygons,minY,maxY);
 
 

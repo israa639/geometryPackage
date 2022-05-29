@@ -195,7 +195,7 @@ namespace CGUtilities
             double c2 = a2 * l2.Start.X + b2 * l2.Start.Y;
            
 
-            double determinant =Math.Abs( a1 * b2 - a2 * b1);
+            double determinant = a1 * b2 - a2 * b1;
 
             if (determinant == 0)
             {
@@ -211,7 +211,7 @@ namespace CGUtilities
             else
             {
                 //double x = Math.Abs((b2 * c1 - b1 * c2) / determinant);
-                double y = Math.Abs((a1 * c2 - a2 * c1) / determinant);
+                double y = (a1 * c2 - a2 * c1) / determinant;
                 return  y;
             }
         }
