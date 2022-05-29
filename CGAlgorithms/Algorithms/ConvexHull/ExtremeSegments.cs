@@ -9,24 +9,10 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 {
     public class ExtremeSegments : Algorithm
     {
-
-        public int Orientation(Point p, Point q, Point r)
+        
+        public List<Point> FindExtremes (List<Point> points, ref List<Point> outPoints)
         {
-            double qpx = q.X - p.X;
-            double qpy = q.Y - p.Y;
-            double rpx = r.X - p.X;
-            double rpy = r.Y - p.Y;
-            double ans = (qpx * rpy) - (rpx * qpy);
-            //same line : 0
-            //turn left : 1
-            //turn right: -1
-            if (ans == 0) return 0;
-            else if (ans > 0) return 1; //turn left
-            else return -1; //turn right
-
-        }
-        public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
-        {
+            List<Point> outs = new List<Point>();
             bool segmentFound = false;
             for (int i = 0; i < points.Count(); i++) //first point in segment
             {
@@ -36,7 +22,8 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                     if (segmentFound) { segmentFound = false; break; }//start from last added point
                     if (j == i) continue;
                     int check = -5;
-                    int first_ori = 0;
+                    Enums.TurnType first_ori = new Enums.TurnType();
+                    Enums.TurnType curr_ori;
                     bool belong = true;
 
 
@@ -47,29 +34,40 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                             if (check == -5) //if first point to check
                             {
                                 check = 0;
-                                first_ori = Orientation(points[i], points[j], points[k]);
-                                if (first_ori == 0)
+                                first_ori = HelperMethods.CheckTurn(new Line(points[i], points[j]), points[k]);
+                                if (first_ori == Enums.TurnType.Colinear)
                                     check = -5;
                             }
                             else
                             {
-                                check = Orientation(points[i], points[j], points[k]);
-                                if (check != first_ori)
+                                curr_ori = HelperMethods.CheckTurn(new Line(points[i], points[j]), points[k]);
+                                if (curr_ori == Enums.TurnType.Colinear)
+                                {
+                                    if (HelperMethods.PointOnSegment(points[k], points[i], points[j]) == true)
+                                        continue;
+                                    else
+                                    {
+                                        belong = false; break;
+                                    }
+
+                                }
+                                if (curr_ori != first_ori)
                                 { //not extreme segment
                                     belong = false;
                                     break;
                                 }
-                                else Console.WriteLine("i " + i + " j " + j);
+
 
                             }
 
                     }
                     if (belong == true)
                     {
-                        bool containsItem = outPoints.Contains(points[i]);
-                        if (containsItem == false) outPoints.Add(points[i]);
-                        containsItem = outPoints.Contains(points[j]);
-                        if (containsItem == false) outPoints.Add(points[j]);
+
+                        bool containsItem = outs.Contains(points[i]);
+                        if (containsItem == false) outs.Add(points[i]);
+                        containsItem = outs.Contains(points[j]);
+                        if (containsItem == false) outs.Add(points[j]);
 
 
                         segmentFound = true;
@@ -80,6 +78,30 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 }
 
             }
+            return outs;
+
+
+        }
+        public override void Run(List<Point> points, List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
+        {   
+            if (points.Count <= 3) { outPoints = points; return; } //if input is three points or less then return as convexHull 
+
+            List<Point> outs = Find_Extremes(points, ref outPoints);
+            for (int b = 0; b < outs.Count(); b++)
+            {
+                outPoints.Add(outs.ElementAt(b));
+            }
+            
+
+
+
+        }
+        public List<Point> Find_Extremes(List<Point> points, ref List<Point> outPoints)
+        {
+            List<Point> outs =FindExtremes(points, ref outPoints);
+            List<Point> outs2 = FindExtremes(outs, ref outPoints);
+            return outs2;
+
         }
 
         public override string ToString()
