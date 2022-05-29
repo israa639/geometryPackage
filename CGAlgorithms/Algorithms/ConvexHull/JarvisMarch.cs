@@ -35,7 +35,9 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             {
                if (angles[i].Key == angles[maxIndex].Key)
                 {
-                    if(current.X> points[angles[i].Value].X&& current.X > points[angles[i].Value].X)
+                    
+                   
+                    if (current.X> points[angles[i].Value].X&& current.X > points[angles[i].Value].X)
                     {
                         maxIndex = points[angles[i].Value].X < points[angles[maxIndex].Value].X ? i : maxIndex;
                         maxAngle = angles[maxIndex].Key;

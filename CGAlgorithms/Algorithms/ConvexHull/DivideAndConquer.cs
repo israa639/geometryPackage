@@ -100,8 +100,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                     Line l = new Line(  left_hull[ULP],right_hull[(right_hull.Count + URP - 1) % right_hull.Count]);
                    
 
-                    if (HelperMethods.Intersection_between_2Lines(l, vertical_line, "max") > max_intersection_point||(HelperMethods.Intersection_between_2Lines(l, vertical_line, "max") == max_intersection_point && right_hull[(right_hull.Count + URP - 1) % right_hull.Count].X >= right_hull[URP].X&& right_hull[(right_hull.Count + URP - 1) % right_hull.Count].Y >= right_hull[URP].Y))
-                    {
+                    if (HelperMethods.Intersection_between_2Lines(l, vertical_line, "max") > max_intersection_point)  {
                         URP = (right_hull.Count + URP - 1) % right_hull.Count;
                         max_intersection_point = HelperMethods.Intersection_between_2Lines(l, vertical_line, "max");
                         //ULP = (ULP + 1) % left_hull.Count;
@@ -116,8 +115,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 
                     Line l = new Line(right_hull[ URP ], left_hull[(ULP+1)%left_hull.Count]);
 
-                    if (HelperMethods.Intersection_between_2Lines(l, vertical_line, "max") > max_intersection_point||(HelperMethods.Intersection_between_2Lines(l, vertical_line, "max") == max_intersection_point && left_hull[(ULP + 1) % left_hull.Count].X <= left_hull[ULP].X&& left_hull[(ULP + 1) % left_hull.Count].Y >= left_hull[ULP].Y) )
-                    {
+                    if (HelperMethods.Intersection_between_2Lines(l, vertical_line, "max") > max_intersection_point)   {
 
                         ULP = (ULP + 1) % left_hull.Count;
                         max_intersection_point = HelperMethods.Intersection_between_2Lines(l, vertical_line, "max");
@@ -152,8 +150,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                     Line l = new Line(left_hull[ULP], right_hull[( URP +1) % right_hull.Count]);
 
 
-                    if (HelperMethods.Intersection_between_2Lines(l, vertical_line,"min") < min_intersection_point|| (HelperMethods.Intersection_between_2Lines(l, vertical_line, "min") == min_intersection_point&& right_hull[(URP + 1) % right_hull.Count].Y <= right_hull[URP].Y&& right_hull[(URP + 1) % right_hull.Count].X <= right_hull[URP].X))
-                    {
+                    if (HelperMethods.Intersection_between_2Lines(l, vertical_line,"min") < min_intersection_point)  {
                         URP = (URP + 1) % right_hull.Count;
                         min_intersection_point = HelperMethods.Intersection_between_2Lines(l, vertical_line,"min");
                         
@@ -166,7 +163,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
                 {
                     Line l = new Line(right_hull[URP], left_hull[(left_hull.Count+ULP - 1) % left_hull.Count]);
 
-                    if (HelperMethods.Intersection_between_2Lines(l, vertical_line,"min")< min_intersection_point||(HelperMethods.Intersection_between_2Lines(l, vertical_line, "min") == min_intersection_point&& left_hull[(left_hull.Count + ULP - 1) % left_hull.Count].Y <= left_hull[ULP].Y&&left_hull[(left_hull.Count + ULP - 1) % left_hull.Count].X >= left_hull[ULP].X))
+                    if (HelperMethods.Intersection_between_2Lines(l, vertical_line,"min")< min_intersection_point)
                         {
                         ULP = (left_hull.Count + ULP - 1) % left_hull.Count;
                         min_intersection_point = HelperMethods.Intersection_between_2Lines(l, vertical_line,"min");
@@ -227,7 +224,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
             double maxY = findMaXY(points);
            
             HelperMethods.filterPoints(points);
-            List<Point> sortedList = points.OrderBy(x => x.X).ToList();
+            List<Point> sortedList = points.OrderBy(x => x.X).ThenBy(x=>x.Y).ToList();
             outPoints = divide(sortedList, ref outPoints, ref outLines, ref outPolygons,minY,maxY);
 
 
