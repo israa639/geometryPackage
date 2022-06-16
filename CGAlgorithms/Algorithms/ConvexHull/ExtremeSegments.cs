@@ -19,7 +19,7 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 
                 for (int j = 0; j < points.Count(); j++) //second point in segment
                 {
-                    if (segmentFound) { segmentFound = false; break; }//start from last added point
+                    if (segmentFound) { segmentFound = false; break; }
                     if (j == i) continue;
                     int check = -5;
                     Enums.TurnType first_ori = new Enums.TurnType();
@@ -96,17 +96,20 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 
 
         }
-        public List<Point> Find_Extremes(List<Point> points, ref List<Point> outPoints)
-        {
-            List<Point> outs =FindExtremes(points, ref outPoints);
-            List<Point> outs2 = FindExtremes(outs, ref outPoints);
-            return outs2;
+        
 
-        }
+
 
         public override string ToString()
         {
             return "Convex Hull - Extreme Segments";
+        }
+        public List<Point> Find_Extremes(List<Point> points, ref List<Point> outPoints)
+        {
+            List<Point> outs = FindExtremes(points, ref outPoints);
+            List<Point> outs2 = FindExtremes(outs, ref outPoints);
+            return outs2;
+
         }
     }
 }

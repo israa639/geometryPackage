@@ -200,8 +200,8 @@ namespace CGAlgorithms.Algorithms.ConvexHull
 
             if (points.Count < 6)
             {
-
-                JarvisMarch ch = new JarvisMarch();
+               
+               JarvisMarch ch = new JarvisMarch();
             
                 ch.Run(points, new List<Line>(), new List<Polygon>(), ref outPoints, ref outLines, ref outPolygons);
                 return outPoints;

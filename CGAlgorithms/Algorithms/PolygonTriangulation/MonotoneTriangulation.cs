@@ -82,8 +82,60 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             return temp ;
 
         }
+        public Boolean Check_Y_Monotone(List<Point> points)
+        {
+            int counterStart = 0;
+            int counterEnd = 0;
+            Boolean y_mono = true;
 
-        
+            
+            for (int i = 0; i < points.Count(); i++)
+            {
+                if (i == 0)
+                {
+                    if ((points[points.Count()-1].Y > points[i].Y) && (points[i + 1].Y > points[i].Y)) //merge vertex 
+                    {
+                        counterEnd++;
+                    }
+                    else if ((points[points.Count() - 1].Y < points[i].Y) && (points[i + 1].Y < points[i].Y)) //split vertex
+                    {
+                        counterStart++;
+                    }
+                }
+                else if (i == points.Count()-1)
+                {
+                    if ((points[i-1].Y > points[i].Y) && (points[0].Y > points[i].Y)) //merge vertex 
+                    {
+                        counterEnd++;
+                    }
+                    else if ((points[i - 1].Y < points[i].Y) && (points[0].Y < points[i].Y)) //split vertex
+                    {
+                        counterStart++;
+                    }
+
+                }
+                else
+                {
+                    if ((points[i - 1].Y > points[i].Y) && (points[i + 1].Y > points[i].Y)) //merge vertex 
+                    {
+                        counterEnd++;
+                    }
+                    else if ((points[i - 1].Y < points[i].Y) && (points[i + 1].Y < points[i].Y)) //split vertex
+                    {
+                        counterStart++;
+                    }
+                }
+
+            }
+            if (counterEnd > 1 || counterStart > 1)
+                y_mono = false;
+
+
+            return y_mono;
+        }
+       
+
+
 
         public override void Run(List<Point> points,List<Line> lines, List<Polygon> polygons, ref List<Point> outPoints, ref List<Line> outLines, ref List<Polygon> outPolygons)
         {
@@ -92,15 +144,24 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             List<Line> diagonals = new List<Line>();
 
             List<Point> newPoints = Check_antiClock(lines);//has new set of start points
-           
+            if (Check_Y_Monotone(newPoints) == false)
+            {
+                Console.WriteLine("POLY IS NOT Y_MONOTONE : TERMINATE");
+                return;
+            }
+
+
 
             int count = 0;
             if(newPoints[1].Y< newPoints[0].Y)
-                point.Add(new Points((Point)newPoints[0].Clone(), 0)); //left chain
+                if (newPoints[0].Y> newPoints[newPoints.Count()-1].Y)
+                    point.Add(new Points((Point)newPoints[0].Clone(), 2)); //max point
+                else    
+                    point.Add(new Points((Point)newPoints[0].Clone(), 0)); //left chain
             else if (newPoints[newPoints.Count() - 1].Y < newPoints[0].Y)
                 point.Add(new Points((Point)newPoints[0].Clone(), 1)); //right chain
             else
-                point.Add(new Points((Point)newPoints[0].Clone(), 2)); //right chain
+                point.Add(new Points((Point)newPoints[0].Clone(), 2)); //min point
 
 
             for (int i = 1; i < newPoints.Count(); i++) // make sorted set of start points
@@ -118,11 +179,7 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
                         count++;
                         point.Add(new Points((Point)newPoints[i].Clone(), 2));
                         // will be true if merge vertex exist
-                        if(count>1)
-                        {
-                            Console.WriteLine("POLY IS NOT Y_MONOTONE : TERMINATE");
-                            return;
-                        }
+                       
                         
                         
                     }
@@ -134,8 +191,9 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
 
             }
 
+            point.ElementAt(0).chain = 2;
 
- 
+
             curr.Push(point.ElementAt(0));
             curr.Push(point.ElementAt(1));
             int j = 2;
@@ -143,39 +201,47 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             {
                 
                 Points temp = point.ElementAt(j);
-                Points top = curr.Pop();
+                
+                Points top = curr.Peek();
                 
                 if (temp.chain == top.chain)//on same chain
                 {
-
+                    curr.Pop();
                     Points temp2 = curr.Peek();
-                     while (((temp2.chain == 0 && temp.chain == 0)&(HelperMethods.CheckTurn(new Line(temp2.point, top.point), temp.point) == Enums.TurnType.Left)) //for left chain
-                            ||((temp2.chain == 1 && temp.chain == 1) & (HelperMethods.CheckTurn(new Line(temp2.point, top.point), temp.point) == Enums.TurnType.Right)) //for right chain
-                            )//convex angle so we can connect
-                     { 
-                            top = curr.Pop();
-                            diagonals.Add(new Line((Point)top.point.Clone(), temp.point));
-                            if (curr.Count() == 0) break;
-                            temp2 = curr.Peek();
+                    if (((top.chain == 0) & (HelperMethods.CheckTurn(new Line(temp2.point, top.point), temp.point) == Enums.TurnType.Left)) //for left chain
+                           || ((top.chain == 1) & (HelperMethods.CheckTurn(new Line(temp2.point, top.point), temp.point) == Enums.TurnType.Right)) //for right chain
+                           )//convex angle so we can connect
+                    {
+                        diagonals.Add(new Line((Point)temp.point.Clone(), temp2.point));
+                        if (curr.Count() == 1)
+                        {
+                            curr.Push(temp);
+                            j++;
+                        }
+                        // temp2 = curr.Peek();
 
 
-                     }
-                    curr.Push(top);
-                    curr.Push(temp);
-                    j++;
+                    }
+                    else
+                    {
+                        curr.Push(top);
+                        curr.Push(temp);
+                        j++;
+
+                    }
 
                 }
                 else
                 {
                     Boolean popped = false;
-                    while (curr.Count() > 0)
+                    while (curr.Count() != 1)
                     {
-
-                        diagonals.Add(new Line((Point)top.point.Clone(), temp.point));
-                        top =curr.Pop();
+                        Points top2 = curr.Pop();
+                        diagonals.Add(new Line((Point)temp.point.Clone(), top2.point));
+                        
                         popped = true;
                     }
-                    if(!popped)curr.Pop();
+                    curr.Pop();
                     curr.Push(top);
                     curr.Push(temp);
                     j++;
